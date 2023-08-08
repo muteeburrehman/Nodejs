@@ -1,40 +1,30 @@
-const express = require('express');
-const app = express();
+let {people} = require("../methods-public/data");
 
-const people = require('./routes/people')
-const auth = require('./routes/auth')
-// static assets
-app.use(express.static('./methods-public'));
-// parse from data
-app.use(express.urlencoded({ extended: false }));
-// parse join
-app.use(express.json());
+const  getPeople = (req, res) => {
+    res.status(200).json({success: true, data: people})
+}
 
-app.use('/api/people',people)
-app.use('/login',auth)
-app.get('/api/people', (req, res) => {
-    res.status(200).json({ success: true, data: people });
-});
+const createPerson =(req, res) => {
+    const { name } = (req, res) => {
+        const {name} = req.body;
 
-app.post('/api/people', (req, res) => {
-    const { name } = req.body;
-
-    if (!name) {
-        return res.status(400).json({ success: false, msg: 'Please provide name value' });
+        if (!name) {
+            return res.status(400).json({success: false, msg: 'Please provide name value'});
+        }
+    }
+        res.status(201).send({success: true, person: name})
     }
 
-    res.status(201).send({ success: true, person: name });
-});
-
-app.post('/api/people/postman',(req,res)=>{
+const createPersonPostman =(req,res)=>{
     const {name} = req.body
 
     if (!name) {
         return res.status(400).json({ success: false, msg: 'Please provide name value' });
     }
     res.status(201).send({success: true, data: [...people,name]})
-})
-app.put('/api/people/:id',(req,res)=>{
+}
+
+const updatePerson=(req,res)=>{
     const {id}=req.params
     const {name}=req.body
     //console.log(id,name)
@@ -51,9 +41,9 @@ app.put('/api/people/:id',(req,res)=>{
         return person
     })
     res.status(200).json({success:true,data:newPeople})
-})
+}
 
-app.delete('/api/people/:id',(req,res)=>{
+const deletePerson=(req,res)=>{
     const person = people.find((person)=>person.id === Number(req.params.id))
     if (!person) {
         return res.status(400).json({ success: false, msg: `no person with id ${req.params.id}` });
@@ -61,7 +51,11 @@ app.delete('/api/people/:id',(req,res)=>{
     }
     const newPeople=people.filter((person)=>person.id !==Number(req.params.id))
     return res.status(200).json({success:true,data:newPeople})
-})
-app.listen(5000, () => {
-    console.log('Server is listening on port 5000');
-});
+}
+module.exports={
+    getPeople,
+    createPerson,
+    createPersonPostman,
+    updatePerson,
+    deletePerson
+}
